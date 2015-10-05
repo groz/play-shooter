@@ -1,6 +1,7 @@
 package models.protocol
 
-import models.{Wall, PlayerState, ObjectId}
+import akka.actor.ActorRef
+import models._
 
 case class GameState(objectStates: Map[ObjectId, PlayerState])
 case class GameUpdates(objectStates: Map[ObjectId, PlayerState])
@@ -12,3 +13,7 @@ case object JoinGame
 case object LeaveGame
 
 case class SetWalls(walls: Seq[Wall])
+
+case object GetVisibleEnemies
+
+case class VisibleEnemies(enemies: Map[ActorRef, PlayerState])

@@ -9,15 +9,15 @@ class Game extends Actor {
 
   val rng = new Random()
 
-  override def receive: Receive = process(Set.empty, Seq.empty)
+  override def receive: Receive = process(Map.empty, Seq.empty)
 
-  def process(players: Set[ActorRef], walls: Seq[Wall]): Receive = {
+  def process(players: Map[ActorRef, PlayerState], walls: Seq[Wall]): Receive = {
 
     case JoinGame =>
       val playerState = genPlayerState
       sender ! InitPlayer(playerState)
       println(s"Player $playerState joined...")
-      context become process(players + sender, walls)
+      context become process(players + (sender -> playerState), walls)
 
     case LeaveGame =>
       println(s"Player $sender left.")
@@ -26,6 +26,20 @@ class Game extends Actor {
     case SetWalls(w: Seq[Wall]) =>
       println(s"New walls has been set!")
       context become process (players, w)
+
+    case GetVisibleEnemies =>
+      val myPosition = players(sender).position
+      val enemies = players.filter(_._1 != sender)
+
+      val visibleEnemies = enemies.filter(x => walls.forall(y => isEnemyVisible(y, myPosition, x._2.position)))
+      sender ! VisibleEnemies(visibleEnemies)
+  }
+
+  //Если два отрезка пересекаются, то есть концы одного отрезка находятся по разные стороны
+  //от прямой, образованной другим отрезком и наоборот.
+  def isEnemyVisible (w: Wall, me: Vector2, enemy: Vector2) : Boolean = {
+    !((math.signum((w.b - w.a) x (me - w.a)) == math.signum((w.b - w.a) x (enemy - w.a))) &&
+    (math.signum((enemy - me) x (w.a - me)) == math.signum((enemy - me) x (w.b - me))))
   }
 
   def genPlayerState = PlayerState(
@@ -35,8 +49,6 @@ class Game extends Actor {
     100)
 
 }
-
-
 
 
 

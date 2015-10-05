@@ -10,3 +10,5 @@ case class PlayerJoined(state: PlayerState)
 
 case object JoinGame
 case object LeaveGame
+
+case class SetWalls(walls: Seq[Wall])

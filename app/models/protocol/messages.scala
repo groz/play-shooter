@@ -1,6 +1,6 @@
 package models.protocol
 
-import models.{PlayerState, ObjectId}
+import models.{Wall, PlayerState, ObjectId}
 
 case class GameState(objectStates: Map[ObjectId, PlayerState])
 case class GameUpdates(objectStates: Map[ObjectId, PlayerState])

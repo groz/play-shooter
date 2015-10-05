@@ -9,7 +9,14 @@ case class Vector2(x: Double, y: Double) {
 
   def length : Double = math.sqrt(x * x + y * y)
 
-  def angleTo (other: Vector2) : Double = ???
+  def angleTo (other: Vector2) : Double = {
+    val denom = length * other.length
+    val sin = (x * other.y - y * other.x) / denom
+    val cos = (x * other.x + y * other.y) / denom
+
+    val angle = math.asin(sin)
+    if (cos > 0) angle else math.Pi - angle
+  }
 
   def * (other: Vector2) : Double = x * other.x + y * other.y
 }

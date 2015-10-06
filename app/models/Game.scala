@@ -25,7 +25,7 @@ class Game extends Actor {
 
     case SetWalls(w: Seq[Wall]) =>
       println(s"New walls has been set!")
-      context become process (players, w)
+      context become process(players, w)
 
     case GetVisibleEnemies =>
       val myPosition = players(sender).position
@@ -43,10 +43,10 @@ class Game extends Actor {
   //от прямой, образованной другим отрезком и наоборот.
   def isEnemyVisible (w: Wall, me: Vector2, enemy: Vector2) : Boolean = {
     !((math.signum((w.b - w.a) x (me - w.a)) != math.signum((w.b - w.a) x (enemy - w.a))) &&
-    (math.signum((enemy - me) x (w.a - me)) != math.signum((enemy - me) x (w.b - me))))
+      (math.signum((enemy - me) x (w.a - me)) != math.signum((enemy - me) x (w.b - me))))
   }
 
-  def distanseToWall (w: Wall, p: Vector2) = ((p - w.a).length + (p - w.b).length) / 2
+  def distanseToWall(w: Wall, p: Vector2) = ((p - w.a).length + (p - w.b).length) / 2
 
   def genPlayerState = PlayerState(
     ObjectId(java.util.UUID.randomUUID().toString),

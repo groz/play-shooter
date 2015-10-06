@@ -29,9 +29,14 @@ class Game extends Actor {
 
     case GetVisibleEnemies =>
       val myPosition = players(sender).position
-      val enemies = players.filter(_._1 != sender)
+      val enemies = players - sender
 
-      val visibleEnemies = enemies.filter(x => walls.forall(y => isEnemyVisible(y, myPosition, x._2.position)))
+      val visibleEnemies =
+        for {
+          (enemy, state) <- enemies
+          if walls.forall(w => isEnemyVisible(w, myPosition, state.position))
+        } yield (enemy, state)
+      
       sender ! VisibleEnemies(visibleEnemies)
   }
 

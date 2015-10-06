@@ -42,8 +42,8 @@ class Game extends Actor {
   //Если два отрезка пересекаются, то есть концы одного отрезка находятся по разные стороны
   //от прямой, образованной другим отрезком и наоборот.
   def isEnemyVisible (w: Wall, me: Vector2, enemy: Vector2) : Boolean = {
-    !((math.signum((w.b - w.a) x (me - w.a)) == math.signum((w.b - w.a) x (enemy - w.a))) &&
-    (math.signum((enemy - me) x (w.a - me)) == math.signum((enemy - me) x (w.b - me))))
+    !((math.signum((w.b - w.a) x (me - w.a)) != math.signum((w.b - w.a) x (enemy - w.a))) &&
+    (math.signum((enemy - me) x (w.a - me)) != math.signum((enemy - me) x (w.b - me))))
   }
 
   def distanseToWall (w: Wall, p: Vector2) = ((p - w.a).length + (p - w.b).length) / 2
@@ -53,7 +53,6 @@ class Game extends Actor {
     Vector2(rng.nextDouble, rng.nextDouble),
     Vector2(1, 0),
     100)
-
 }
 
 

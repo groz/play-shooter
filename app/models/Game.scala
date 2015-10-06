@@ -31,6 +31,10 @@ class Game extends Actor {
       val myPosition = players(sender).position
       val enemies = players.filter(_._1 != sender)
 
+      //val sortedWalls = walls.sortBy(x => distanseToWall(x, myPosition)).toList
+
+      //def cutEnemies (sortedWalls: List[Wall]) = ???
+
       val visibleEnemies = enemies.filter(x => walls.forall(y => isEnemyVisible(y, myPosition, x._2.position)))
       sender ! VisibleEnemies(visibleEnemies)
   }
@@ -41,6 +45,8 @@ class Game extends Actor {
     !((math.signum((w.b - w.a) x (me - w.a)) == math.signum((w.b - w.a) x (enemy - w.a))) &&
     (math.signum((enemy - me) x (w.a - me)) == math.signum((enemy - me) x (w.b - me))))
   }
+
+  def distanseToWall (w: Wall, p: Vector2) = ((p - w.a).length + (p - w.b).length) / 2
 
   def genPlayerState = PlayerState(
     ObjectId(java.util.UUID.randomUUID().toString),

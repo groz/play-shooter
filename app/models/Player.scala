@@ -10,6 +10,8 @@ class Player(game: ActorRef, out: ActorRef) extends Actor {
   implicit val vector2Fmt = Json.format[Vector2]
   implicit val stateFmt = Json.format[PlayerState]
   implicit val initMessageFmt = Json.format[models.protocol.InitPlayer]
+  implicit val pjoinedMessageFmt = Json.format[models.protocol.PlayerJoined]
+  implicit val pleftMessageFmt = Json.format[models.protocol.PlayerLeft]
 
   def toCommand[A](name: String, a: A)(implicit fmt: Format[A]): JsValue =
     JsObject(Map("name" -> JsString(name), "data" -> Json.toJson(a)))
@@ -20,7 +22,7 @@ class Player(game: ActorRef, out: ActorRef) extends Actor {
 
   override def receive: Receive = {
 
-    case msg @ InitPlayer(state) =>
+    case msg @ InitPlayer(state, playerStates) =>
       out ! toCommand("InitPlayer", msg)
       context become process(state)
   }
@@ -31,7 +33,10 @@ class Player(game: ActorRef, out: ActorRef) extends Actor {
       println(clientMessage)
       out ! clientMessage
 
-    case msg @ PlayerJoined =>
-      out ! msg
+    case msg: PlayerJoined =>
+      out ! toCommand("PlayerJoined", msg)
+
+    case msg: PlayerLeft =>
+      out ! toCommand("PlayerLeft", msg)
   }
 }

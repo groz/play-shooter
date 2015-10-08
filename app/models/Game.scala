@@ -16,7 +16,7 @@ class Game extends Actor {
 
     case JoinGame =>
       val playerState = genPlayerState
-      sender ! InitPlayer(playerState)
+      sender ! InitPlayer(playerState, players.values.toSeq)
       println(s"Player $playerState joined...")
 
       for ((p, state) <- players) {
@@ -27,6 +27,12 @@ class Game extends Actor {
 
     case LeaveGame =>
       println(s"Player $sender left.")
+      val leftPlayerState = players(sender)
+
+      for ((p, state) <- players - sender) {
+        p ! PlayerLeft(leftPlayerState)
+      }
+
       context become process(players - sender, walls)
 
     case SetWalls(w: Seq[Wall]) =>

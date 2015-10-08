@@ -2,7 +2,7 @@ console.log("connecting...");
 
 var ws = new WebSocket("ws://localhost:9000/socket");
 
-function draw() {
+function createScene() {
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
@@ -10,23 +10,40 @@ function draw() {
   renderer.setSize( window.innerWidth, window.innerHeight );
   document.body.appendChild( renderer.domElement );
 
-  var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-  var cube = new THREE.Mesh( geometry, material );
-  scene.add( cube );
-
   camera.position.z = 5;
 
   function render() {
+    //cube.rotation.x += 0.01;
+    //cube.rotation.y += 0.01;
+
     requestAnimationFrame( render );
-
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-
     renderer.render( scene, camera );
   }
 
   render();
+
+  return scene;
+}
+
+var gameObjectMap = {};
+
+function addSceneObject(scene, gameObject, color) {
+
+  var geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
+  var material = new THREE.MeshBasicMaterial( { color: color } );
+  var cube = new THREE.Mesh( geometry, material );
+
+  cube.position.x = gameObject.position.x;
+  cube.position.y = gameObject.position.y;
+
+  gameObjectMap[gameObject.id.id] = cube;
+
+  scene.add( cube );
+}
+
+function removeSceneObject(scene, gameObject) {
+  var sceneObject = gameObjectMap[gameObject.id.id];
+  scene.remove(sceneObject);
 }
 
 function startGame() {
@@ -35,18 +52,32 @@ function startGame() {
 
   ws.onmessage = function(msg) {
     var json = JSON.parse(msg.data);
-    console.log(json);
+    console.log("Received raw message: ", json);
 
     switch (json.name) {
+      
       case "InitPlayer":
         console.log(json.data);
+        addSceneObject(scene, json.data.state, "green");
+        for (var p = 0, end = json.data.players.length; p < end; ++p) {
+          addSceneObject(scene, json.data.players[p], "red");
+        }
+        break;
+
+      case "PlayerJoined":
+        console.log(json.data);
+        addSceneObject(scene, json.data.state, "red");
+        break;
+
+      case "PlayerLeft":
+        console.log(json.data);
+        removeSceneObject(scene, json.data.state);
         break;
     }
   };
 
-  ws.send(JSON.stringify(obj));
+  var scene = createScene();
 
-  draw();
 }
 
 ws.onopen = startGame;

@@ -16,12 +16,23 @@ class Game extends Actor {
 
     case JoinGame =>
       val playerState = genPlayerState
-      sender ! InitPlayer(playerState)
+      sender ! InitPlayer(playerState, players.values.toSeq)
       println(s"Player $playerState joined...")
+
+      for ((p, state) <- players) {
+        p ! PlayerJoined(playerState)
+      }
+
       context become process(players + (sender -> playerState), walls)
 
     case LeaveGame =>
       println(s"Player $sender left.")
+      val leftPlayerState = players(sender)
+
+      for ((p, state) <- players - sender) {
+        p ! PlayerLeft(leftPlayerState)
+      }
+
       context become process(players - sender, walls)
 
     case SetWalls(w: Seq[Wall]) =>
@@ -39,15 +50,6 @@ class Game extends Actor {
         } yield (enemy, state)
       sender ! VisibleEnemies(visibleEnemies)
   }
-
-  //Если два отрезка пересекаются, то есть концы одного отрезка находятся по разные стороны
-  //от прямой, образованной другим отрезком и наоборот.
-  def isEnemyVisible (w: Wall, me: Vector2, enemy: Vector2) : Boolean = {
-    !((math.signum((w.b - w.a) x (me - w.a)) != math.signum((w.b - w.a) x (enemy - w.a))) &&
-      (math.signum((enemy - me) x (w.a - me)) != math.signum((enemy - me) x (w.b - me))))
-  }
-
-  def distanseToWall(w: Wall, p: Vector2) = ((p - w.a).length + (p - w.b).length) / 2
 
   def genPlayerState = PlayerState(
     ObjectId(java.util.UUID.randomUUID().toString),

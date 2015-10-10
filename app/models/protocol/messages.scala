@@ -10,6 +10,8 @@ case class InitPlayer(state: PlayerState, players: Seq[PlayerState])
 case class PlayerJoined(state: PlayerState)
 case class PlayerLeft(state: PlayerState)
 
+case class Reposition(id: PlayerState, position: Vector2)
+
 case object JoinGame
 case object LeaveGame
 

@@ -13,6 +13,12 @@ class Game extends Actor {
   override def receive: Receive = process(Map.empty, Seq.empty)
 
   def process(players: Map[ActorRef, PlayerState], walls: Seq[Wall]): Receive = {
+    case Reposition(state, v) =>
+      for ((p, state) <- players) {
+        println(s"Reposition player with id $state to ($v)")
+        p ! Reposition(state, v)
+      }
+      
 
     case JoinGame =>
       val playerState = genPlayerState

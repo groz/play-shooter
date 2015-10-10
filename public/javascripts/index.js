@@ -46,6 +46,15 @@ function removeSceneObject(scene, gameObject) {
   scene.remove(sceneObject);
 }
 
+function moveSceneObject(scene, gameObject) {
+  console.log("Inside moveSceneObject");
+  console.log(gameObject);
+  var sceneObject = gameObjectMap[gameObject.id.id.id];
+  console.log(sceneObject);
+  sceneObject.position.x = gameObject.position.x
+  sceneObject.position.y = gameObject.position.y
+}
+
 function startGame() {
 
   console.log("Game started");
@@ -58,6 +67,8 @@ function startGame() {
       
       case "InitPlayer":
         console.log(json.data);
+        var reposMsg = {name: "Reposition", x: 3, y: 3};
+        ws.send(JSON.stringify(reposMsg));
         addSceneObject(scene, json.data.state, "green");
         for (var p = 0, end = json.data.players.length; p < end; ++p) {
           addSceneObject(scene, json.data.players[p], "red");
@@ -72,6 +83,16 @@ function startGame() {
       case "PlayerLeft":
         console.log(json.data);
         removeSceneObject(scene, json.data.state);
+        break;
+
+      case "Reposition":
+        console.log("Reposition");
+        console.log(json.data);
+        moveSceneObject(scene, json.data);
+        break;
+
+      default:
+        console.log(json.name);
         break;
     }
   };

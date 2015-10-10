@@ -14,6 +14,15 @@ class Game extends Actor {
 
   def process(players: Map[ActorRef, PlayerState], walls: Seq[Wall]): Receive = {
 
+    case Reposition(v: Vector2) =>
+      val state: PlayerState = players(sender)
+      val newState = state.copy(position = v)
+      println(s"Reposition $state to $v ...")
+      for ((p, _) <- (players - sender)) {
+        p ! PlayerReposition(newState)
+      }
+      context become process(players.updated(sender, newState), walls)
+
     case JoinGame =>
       val playerState = genPlayerState
       sender ! InitPlayer(playerState, players.values.toSeq)

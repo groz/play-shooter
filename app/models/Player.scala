@@ -12,6 +12,8 @@ class Player(game: ActorRef, out: ActorRef) extends Actor {
   implicit val initMessageFmt = Json.format[models.protocol.InitPlayer]
   implicit val pjoinedMessageFmt = Json.format[models.protocol.PlayerJoined]
   implicit val pleftMessageFmt = Json.format[models.protocol.PlayerLeft]
+  implicit val reposMessageFmt = Json.format[models.protocol.Reposition]
+  implicit val reposplayaMessageFmt = Json.format[models.protocol.PlayerReposition]
 
   def toCommand[A](name: String, a: A)(implicit fmt: Format[A]): JsValue =
     JsObject(Map("name" -> JsString(name), "data" -> Json.toJson(a)))
@@ -30,13 +32,25 @@ class Player(game: ActorRef, out: ActorRef) extends Actor {
   def process(state: PlayerState): Receive = {
 
     case clientMessage: JsValue =>
-      println(clientMessage)
-      out ! clientMessage
+      clientMessage.\("name").as[String] match {
+        case "reposition" =>
+          val vec = (clientMessage\"data").as[Vector2]
+          println(s"repositioning from init started $vec")
+          game ! Reposition(vec)
+        case _ =>
+          println(clientMessage)
+          out ! clientMessage
+      }
+
+    case msg: PlayerReposition =>
+      out ! toCommand("PlayerReposition", msg)
 
     case msg: PlayerJoined =>
       out ! toCommand("PlayerJoined", msg)
 
     case msg: PlayerLeft =>
       out ! toCommand("PlayerLeft", msg)
+
+
   }
 }

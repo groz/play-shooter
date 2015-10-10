@@ -9,9 +9,12 @@ case class GameUpdates(objectStates: Map[ObjectId, PlayerState])
 case class InitPlayer(state: PlayerState, players: Seq[PlayerState])
 case class PlayerJoined(state: PlayerState)
 case class PlayerLeft(state: PlayerState)
+case class Reposition(newPosition: Vector2)
+case class PlayerReposition(state: PlayerState)
 
 case object JoinGame
 case object LeaveGame
+case object Reposition
 
 case class SetWalls(walls: Seq[Wall])
 

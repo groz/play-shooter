@@ -14,10 +14,15 @@ class Game extends Actor {
 
   def process(players: Map[ActorRef, PlayerState], walls: Seq[Wall]): Receive = {
     case Reposition(state, v) =>
-      for ((p, state) <- players) {
+      for ((p, _) <- players) {
         println(s"Reposition player with id $state to ($v)")
         p ! Reposition(state, v)
       }
+      val player = players.find(_._2 == state).head
+      val newPlayer = (player._1 -> player._2.copy(position = v))
+      val newPlayers = players + newPlayer
+      context become process(newPlayers, walls)
+
       
 
     case JoinGame =>

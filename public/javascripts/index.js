@@ -67,7 +67,7 @@ function startGame() {
       
       case "InitPlayer":
         console.log(json.data);
-        var reposMsg = {name: "Reposition", x: 3, y: 3};
+        var reposMsg = {name: "Reposition", x: 2 + Math.random(), y: 2 + Math.random()};
         ws.send(JSON.stringify(reposMsg));
         addSceneObject(scene, json.data.state, "green");
         for (var p = 0, end = json.data.players.length; p < end; ++p) {

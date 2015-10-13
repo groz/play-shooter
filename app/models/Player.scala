@@ -23,8 +23,7 @@ class Player(game: ActorRef, out: ActorRef) extends Actor {
   override def postStop() = game ! LeaveGame
 
   override def receive: Receive = {
-
-    case msg @ InitPlayer(state, playerStates) =>
+    case msg@InitPlayer(state, playerStates) =>
       out ! toCommand("InitPlayer", msg)
       context become process(state)
   }
@@ -32,13 +31,14 @@ class Player(game: ActorRef, out: ActorRef) extends Actor {
   def process(state: PlayerState): Receive = {
 
     case clientMessage: JsValue =>
-      clientMessage.\("name").as[String] match {
-        case "reposition" =>
-          val vec = (clientMessage\"data").as[Vector2]
-          println(s"repositioning from init started $vec")
-          game ! Reposition(vec)
+
+      (clientMessage \ "name").as[String] match {
+
+        case "Reposition" =>
+          game ! (clientMessage \ "data").as[Reposition]
+
         case _ =>
-          println(clientMessage)
+          println(s"Unhandled message: $clientMessage")
           out ! clientMessage
       }
 

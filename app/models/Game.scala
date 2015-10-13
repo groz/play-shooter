@@ -63,6 +63,7 @@ class Game extends Actor {
   def genPlayerState = PlayerState(
     ObjectId(java.util.UUID.randomUUID().toString),
     Vector2(rng.nextDouble, rng.nextDouble),
+    Vector2(0, 0),
     Vector2(1, 0),
     100)
 }
